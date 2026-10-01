@@ -1,0 +1,290 @@
+<Window x:Class="FT857DControl.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="HamTech M0FXB Yaesu FT857D Controller" Width="1536" Height="1024" MinWidth="900" MinHeight="600" ResizeMode="CanResizeWithGrip" Background="#111314" Foreground="#EEE" WindowStartupLocation="CenterScreen" FontFamily="Segoe UI" FontSize="13" KeyDown="Window_KeyDown">
+ <Window.Resources>
+  <LinearGradientBrush x:Key="Metal" StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#4A4D4E" Offset="0"/><GradientStop Color="#252829" Offset=".10"/><GradientStop Color="#111314" Offset=".48"/><GradientStop Color="#080A0B" Offset=".72"/><GradientStop Color="#2B2E2F" Offset="1"/></LinearGradientBrush>
+  <LinearGradientBrush x:Key="Panel" StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#343839" Offset="0"/><GradientStop Color="#191C1D" Offset=".18"/><GradientStop Color="#0F1112" Offset=".72"/><GradientStop Color="#292C2D" Offset="1"/></LinearGradientBrush>
+  <LinearGradientBrush x:Key="MeterFace" StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#F5EED8" Offset="0"/><GradientStop Color="#D8CFB6" Offset="1"/></LinearGradientBrush>
+  <RadialGradientBrush x:Key="Knob"><GradientStop Color="#3A3D3E" Offset="0"/><GradientStop Color="#17191A" Offset=".68"/><GradientStop Color="#050606" Offset="1"/></RadialGradientBrush>
+  <Style x:Key="ReadableComboItem" TargetType="ComboBoxItem"><Setter Property="Foreground" Value="Black"/><Setter Property="Background" Value="White"/><Setter Property="Padding" Value="6,4"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#DDEBFF"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#BFD8FF"/><Setter Property="Foreground" Value="Black"/></Trigger></Style.Triggers></Style>
+  <Style x:Key="MemoryComboItem" TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#D00000"/><Setter Property="Background" Value="White"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="Padding" Value="6,4"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#FFE1E1"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#FFD0D0"/><Setter Property="Foreground" Value="#B00000"/></Trigger></Style.Triggers></Style>
+  <Style x:Key="ReadableSubMenuItem" TargetType="MenuItem"><Setter Property="Foreground" Value="Black"/><Setter Property="Background" Value="#F3F3F3"/></Style>
+ </Window.Resources>
+ <Grid Background="#090A0B">
+  <Grid x:Name="LegacyUiHost" Opacity="0" IsHitTestVisible="False">
+ <DockPanel>
+  <Menu DockPanel.Dock="Top" Background="#1C1E1F" Foreground="#DDD" Height="25">
+   <MenuItem Header="_File" Foreground="#DDD" Background="Transparent" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="E_xit" Click="MenuExit_Click"/></MenuItem>
+   <MenuItem Header="_View" Foreground="#DDD" Background="Transparent" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Refresh COM ports" Click="RefreshPorts_Click"/><MenuItem Header="Read radio now" Click="Read_Click"/><Separator/><MenuItem Header="Fill PC screen" Click="FillScreen_Click"/><MenuItem Header="Full screen (F11)" Click="FullScreen_Click"/><MenuItem Header="Restore window" Click="RestoreWindow_Click"/><Separator/><MenuItem x:Name="AlwaysOnTopMenu" Header="Always on top" IsCheckable="True" Click="AlwaysOnTop_Click"/></MenuItem>
+   <MenuItem Header="_Radio" Foreground="#DDD" Background="Transparent" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Connect / Disconnect" Click="Connect_Click"/><MenuItem Header="Read frequency + mode" Click="Read_Click"/><Separator/><MenuItem Header="VFO A / B" Click="Vfo_Click"/><MenuItem Header="Split On / Off" Click="Split_Click"/><MenuItem Header="Clarifier On / Off" Click="Clar_Click"/><Separator/><MenuItem Header="PTT ON" Click="MenuPttOn_Click"/><MenuItem Header="PTT OFF" Click="MenuPttOff_Click"/></MenuItem>
+   <MenuItem Header="_Settings" Foreground="#DDD" Background="Transparent" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Tuning step"><MenuItem Header="10 Hz" Tag="10" Click="TuningStepMenu_Click"/><MenuItem Header="100 Hz" Tag="100" Click="TuningStepMenu_Click"/><MenuItem Header="1 kHz" Tag="1000" Click="TuningStepMenu_Click"/><MenuItem Header="5 kHz" Tag="5000" Click="TuningStepMenu_Click"/><MenuItem Header="10 kHz" Tag="10000" Click="TuningStepMenu_Click"/><MenuItem Header="100 kHz" Tag="100000" Click="TuningStepMenu_Click"/></MenuItem><Separator/><MenuItem Header="Refresh COM ports" Click="RefreshPorts_Click"/></MenuItem>
+   <MenuItem Header="_Instructions" Foreground="#FFD35A" Background="Transparent" FontWeight="Bold" Click="Instructions_Click"/>
+   <MenuItem Header="FULL SCREEN (F11)" Foreground="#FF9D18" Background="Transparent" FontWeight="Bold" Click="FullScreen_Click"/>
+   <MenuItem Header="_Help" Foreground="#DDD" Background="Transparent" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Instructions" Click="Instructions_Click"/><MenuItem Header="VFO knob help" Click="KnobHelp_Click"/><MenuItem Header="About" Click="About_Click"/></MenuItem>
+  </Menu>
+  <Viewbox Stretch="Uniform" StretchDirection="Both" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <Border Width="1060" Height="1060" Margin="4" CornerRadius="9" BorderBrush="#55595A" BorderThickness="1" Background="{StaticResource Panel}" Padding="2"><Grid Margin="4"><Grid.RowDefinitions><RowDefinition Height="310"/><RowDefinition Height="480"/><RowDefinition Height="82"/><RowDefinition Height="155"/><RowDefinition Height="22"/></Grid.RowDefinitions>
+   <Border Grid.Row="0" Background="{StaticResource Metal}" BorderBrush="#4B4F51" BorderThickness="2" CornerRadius="8" Padding="9">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="92"/><ColumnDefinition Width="430"/><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/><ColumnDefinition Width="70"/></Grid.ColumnDefinitions>
+     <StackPanel Grid.Column="0" Margin="2,47,8,0"><Button Content="HOME" Height="49" Click="Home_Click"/><Button x:Name="ClarButton" Content="CLAR" Height="49" Margin="3,16" Click="Clar_Click"/><Button Content="FUNC" Height="49" Click="Func_Click"/></StackPanel>
+     <Grid Grid.Column="1"><Grid.RowDefinitions><RowDefinition Height="52"/><RowDefinition Height="157"/><RowDefinition Height="55"/></Grid.RowDefinitions>
+      <Grid><TextBlock Text="YAESU" Foreground="#D4A252" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="28" VerticalAlignment="Center" Margin="28,0,0,0"/><TextBlock Text="FT-857D" Foreground="#D4A252" FontStyle="Italic" FontWeight="Bold" FontSize="21" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"/></Grid>
+      <Border Grid.Row="1" Background="#080909" BorderBrush="#373A3B" BorderThickness="4" CornerRadius="10" Padding="9"><Border Background="{StaticResource Lcd}" CornerRadius="5" Padding="13,8"><Grid><Grid.RowDefinitions><RowDefinition Height="31"/><RowDefinition Height="*"/><RowDefinition Height="35"/></Grid.RowDefinitions>
+       <Grid><TextBlock x:Name="VfoText" Text="VFO A" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="19"/><TextBlock x:Name="MemoryDisplayText" Text="" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/><TextBlock x:Name="ModeText" Text="FM" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="19" HorizontalAlignment="Right" Margin="0,0,65,0"/><TextBlock Text="13.8V" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="18" HorizontalAlignment="Right"/></Grid>
+       <TextBox x:Name="FrequencyBox" Grid.Row="1" Text="145.500.00" Background="Transparent" BorderThickness="0" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="48" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" KeyDown="FrequencyBox_KeyDown" ToolTip="Enter MHz, e.g. 145.500 or 14.074"/>
+       <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="32"/><ColumnDefinition Width="250"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock x:Name="SignalText" Text="S0" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="17" FontWeight="Bold" VerticalAlignment="Center"/><UniformGrid Grid.Column="1" Columns="16" Height="17" Margin="3,4,0,4"><Border x:Name="SignalSeg0" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg1" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg2" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg3" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg4" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg5" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg6" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg7" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg8" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg9" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg10" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg11" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg12" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg13" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg14" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/><Border x:Name="SignalSeg15" Margin="1" CornerRadius="1" Background="#244428" BorderBrush="#315A35" BorderThickness="1"/></UniformGrid><TextBlock x:Name="SplitText" Grid.Column="2" Text="SPLIT OFF" Foreground="{StaticResource LcdInk}" FontFamily="Consolas" FontSize="16" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid>
+      </Grid></Border></Border>
+      <UniformGrid Grid.Row="2" Columns="5" Margin="0,7,0,0"><Button Content="A/B" Click="Vfo_Click"/><Button Content="V/M" Click="Vm_Click"/><Button Content="MW" Click="MemoryWrite_Click"/><Button Content="SPL" Click="Split_Click"/><Button x:Name="ScanButton" Content="SCAN" Click="Scan_Click"/></UniformGrid>
+     </Grid>
+     <StackPanel Grid.Column="2" Margin="4,55,2,0" HorizontalAlignment="Center"><TextBlock Text="TX" HorizontalAlignment="Center"/><Ellipse x:Name="TxLamp" Width="15" Height="15" Fill="#48120F" Stroke="#66100D" StrokeThickness="2"/><TextBlock Text="RX" HorizontalAlignment="Center" Margin="0,13,0,0"/><Ellipse x:Name="RxLamp" Width="15" Height="15" Fill="#26320D" Stroke="#313313" StrokeThickness="2"/></StackPanel>
+     <Grid x:Name="VfoDial" Grid.Column="3" Margin="4,43,4,0" Cursor="Hand" MouseWheel="Dial_MouseWheel" MouseLeftButtonDown="Dial_MouseLeftButtonDown" MouseLeftButtonUp="Dial_MouseLeftButtonUp" MouseMove="Dial_MouseMove" LostMouseCapture="Dial_LostMouseCapture" ToolTip="FT-857D style VFO: mouse wheel or click-drag to tune.">
+      <Ellipse Fill="#070809" Stroke="#555A5C" StrokeThickness="3"/>
+      <Ellipse Margin="7" Fill="#171A1B" Stroke="#050606" StrokeThickness="7" StrokeDashArray="2,1"/>
+      <Ellipse Margin="17" Fill="#25292A" Stroke="#090A0A" StrokeThickness="2"/>
+      <Ellipse Margin="27" Fill="{StaticResource Knob}" Stroke="#454A4C" StrokeThickness="3"/>
+      <Ellipse Margin="43" Fill="#0C0E0F" Stroke="#303436" StrokeThickness="2"/>
+      <Ellipse Margin="52" Fill="#191C1D" Stroke="#050606" StrokeThickness="3"/>
+      <Grid IsHitTestVisible="False"><Grid.RenderTransform><RotateTransform x:Name="DialIndicatorTransform" Angle="0"/></Grid.RenderTransform><Border Width="5" Height="30" CornerRadius="2" Background="#D8B264" BorderBrush="#F1D28A" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,13,0,0"/></Grid>
+      <TextBlock Text="MAIN DIAL" Foreground="#AEB3B5" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,13" IsHitTestVisible="False"/>
+      <Grid Width="72" Height="72" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,16" IsHitTestVisible="False"><Ellipse Fill="#0A0B0C" Stroke="#4C5052" StrokeThickness="3"/><Ellipse Margin="9" Fill="#292D2E" Stroke="#090A0A" StrokeThickness="3"/><Line X1="36" Y1="12" X2="36" Y2="24" Stroke="#D4A252" StrokeThickness="3"/></Grid>
+     </Grid>
+     <StackPanel Grid.Column="4" Margin="2,42,0,0"><TextBlock Text="PWR" HorizontalAlignment="Center"/><Ellipse Width="15" Height="15" Fill="#9CD52C" Margin="0,2,0,8"/><Button Content="⏻" FontSize="24" Height="45" Click="Power_Click"/><Button Content="UP" Height="38" Margin="3,13,3,3" Tag="1000" Click="Tune_Click"/><Button Content="DWN" Height="38" Tag="-1000" Click="Tune_Click"/><Button Content="BAND" Height="38" Margin="3,13,3,3" Click="Band_Click"/><Button x:Name="TunerButton" Content="TUNER" Height="42" Margin="3,8,3,3" Foreground="#1A0E00" Background="#F39A22" BorderBrush="#FFD07A" BorderThickness="2" FontWeight="Bold" Click="Tuner_Click" ToolTip="FC-30/ATAS setup. The FT-857D shares CAT/LINEAR/TUNER on one rear socket."/></StackPanel>
+    </Grid>
+   </Border>
+   <Grid Grid.Row="1" Margin="0,7,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="290"/><ColumnDefinition Width="270"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <StackPanel Grid.Column="0"><GroupBox Header="Frequency"><Grid><Grid.RowDefinitions><RowDefinition Height="45"/><RowDefinition Height="42"/></Grid.RowDefinitions><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition/><ColumnDefinition Width="38"/></Grid.ColumnDefinitions><Button Content="◀" Tag="-1000" Click="Tune_Click"/><TextBlock Grid.Column="1" x:Name="FrequencyReadout" Text="145.500.00" FontFamily="Consolas" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/><Button Grid.Column="2" Content="▶" Tag="1000" Click="Tune_Click"/></Grid><UniformGrid Grid.Row="1" Columns="6"><Button Content="-1k" Tag="-1000" Click="Tune_Click"/><Button Content="-100" Tag="-100" Click="Tune_Click"/><Button Content="-10" Tag="-10" Click="Tune_Click"/><Button Content="+10" Tag="10" Click="Tune_Click"/><Button Content="+100" Tag="100" Click="Tune_Click"/><Button Content="+1k" Tag="1000" Click="Tune_Click"/></UniformGrid></Grid></GroupBox>
+     <GroupBox Header="PTT" Margin="0,6,0,0"><Grid Height="78"><Button x:Name="PttButton" Content="PTT" Height="68" Margin="4" Foreground="White" Background="#B51218" BorderBrush="#FF4B50" BorderThickness="3" FontSize="28" FontWeight="Bold" PreviewMouseLeftButtonDown="Ptt_Down" PreviewMouseLeftButtonUp="Ptt_Up" LostMouseCapture="Ptt_LostCapture"/><Ellipse Width="22" Height="22" Fill="#FF2828" Stroke="#7A0000" StrokeThickness="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,12,0" IsHitTestVisible="False"/></Grid></GroupBox>
+     <GroupBox Header="AUDIO SCOPE" Margin="0,6,0,0">
+      <Grid Height="245" Margin="4"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="30"/></Grid.RowDefinitions>
+       <Border Background="#030806" BorderBrush="#3A4D42" BorderThickness="2" CornerRadius="4" ClipToBounds="True">
+        <Canvas x:Name="AudioScopeCanvas" Background="#030806" SizeChanged="AudioScopeCanvas_SizeChanged">
+         <Line x:Name="ScopeMidLine" Stroke="#174A2A" StrokeThickness="1"/>
+         <Polyline x:Name="AudioScopeTrace" Stroke="#35FF70" StrokeThickness="2" StrokeLineJoin="Round"/>
+        </Canvas>
+       </Border>
+       <Grid Grid.Row="1"><TextBlock x:Name="AudioScopeStatus" Text="DEFAULT AUDIO INPUT" Foreground="#6DFF92" FontFamily="Consolas" FontSize="11" VerticalAlignment="Center"/><Button Content="RESTART" Width="70" Height="24" HorizontalAlignment="Right" Click="RestartAudioScope_Click"/></Grid>
+      </Grid>
+     </GroupBox></StackPanel>
+    <StackPanel Grid.Column="1"><GroupBox Header="Mode"><UniformGrid Columns="4"><Button Content="LSB" Tag="LSB" Click="Mode_Click"/><Button Content="USB" Tag="USB" Click="Mode_Click"/><Button Content="CW" Tag="CW" Click="Mode_Click"/><Button Content="CWR" Tag="CWR" Click="Mode_Click"/><Button Content="AM" Tag="AM" Click="Mode_Click"/><Button Content="FM" Tag="FM" Click="Mode_Click"/><Button Content="DIG" Tag="DIG" Click="Mode_Click"/><Button Content="PKT" Tag="PKT" Click="Mode_Click"/></UniformGrid></GroupBox><GroupBox Header="FT-857D ANALOG METER"><Border Height="128" Margin="2" CornerRadius="6" BorderBrush="#050505" BorderThickness="3" Background="#D9D0B6"><Canvas Width="250" Height="122" ClipToBounds="True">
+       <Rectangle Width="250" Height="122" Fill="#E7DEC4"/>
+       <Path Stroke="#202020" StrokeThickness="2.2" Data="M 22,100 A 108,108 0 0 1 228,100"/>
+       <Path Stroke="#238B3B" StrokeThickness="4" Data="M 30,94 A 99,99 0 0 1 178,38"/>
+       <Path Stroke="#B51F1F" StrokeThickness="4" Data="M 178,38 A 99,99 0 0 1 220,92"/>
+       <Line X1="29" Y1="94" X2="39" Y2="87" Stroke="#222" StrokeThickness="2"/><Line X1="49" Y1="67" X2="59" Y2="72" Stroke="#222" StrokeThickness="2"/><Line X1="77" Y1="46" X2="83" Y2="57" Stroke="#222" StrokeThickness="2"/><Line X1="108" Y1="34" X2="111" Y2="47" Stroke="#222" StrokeThickness="2"/><Line X1="140" Y1="32" X2="138" Y2="46" Stroke="#222" StrokeThickness="2"/><Line X1="171" Y1="42" X2="166" Y2="54" Stroke="#222" StrokeThickness="2"/><Line X1="198" Y1="61" X2="189" Y2="70" Stroke="#A31818" StrokeThickness="2"/><Line X1="220" Y1="91" X2="209" Y2="84" Stroke="#A31818" StrokeThickness="2"/>
+       <Line X1="39" Y1="82" X2="45" Y2="79" Stroke="#555"/><Line X1="61" Y1="58" X2="66" Y2="64" Stroke="#555"/><Line X1="92" Y1="39" X2="95" Y2="47" Stroke="#555"/><Line X1="124" Y1="31" X2="124" Y2="40" Stroke="#555"/><Line X1="156" Y1="35" X2="153" Y2="44" Stroke="#555"/><Line X1="185" Y1="50" X2="180" Y2="58" Stroke="#8C3333"/><Line X1="210" Y1="73" X2="202" Y2="78" Stroke="#8C3333"/>
+       <TextBlock Text="SIGNAL" Foreground="#333" FontWeight="Bold" FontSize="9" Canvas.Left="8" Canvas.Top="5"/><TextBlock Text="YAESU" Foreground="#6C552B" FontFamily="Georgia" FontStyle="Italic" FontWeight="Bold" FontSize="12" Canvas.Left="101" Canvas.Top="5"/>
+       <TextBlock Text="S" Foreground="#222" FontWeight="Bold" Canvas.Left="12" Canvas.Top="88"/><TextBlock Text="1" Foreground="#222" Canvas.Left="40" Canvas.Top="65"/><TextBlock Text="3" Foreground="#222" Canvas.Left="68" Canvas.Top="43"/><TextBlock Text="5" Foreground="#222" Canvas.Left="100" Canvas.Top="28"/><TextBlock Text="7" Foreground="#222" Canvas.Left="133" Canvas.Top="26"/><TextBlock Text="9" Foreground="#222" FontWeight="Bold" Canvas.Left="166" Canvas.Top="35"/><TextBlock Text="+20" Foreground="#A31818" FontWeight="Bold" FontSize="11" Canvas.Left="190" Canvas.Top="50"/><TextBlock Text="+40" Foreground="#A31818" FontWeight="Bold" FontSize="10" Canvas.Left="207" Canvas.Top="68"/><TextBlock Text="+60" Foreground="#A31818" FontWeight="Bold" FontSize="10" Canvas.Left="220" Canvas.Top="88"/>
+       <Line X1="125" Y1="106" X2="125" Y2="29" Stroke="#4A0000" StrokeThickness="4" Opacity="0.25" RenderTransformOrigin="0.5,1"><Line.RenderTransform><RotateTransform Angle="-62" CenterX="125" CenterY="106"/></Line.RenderTransform></Line>
+       <Line x:Name="AnalogNeedle" X1="125" Y1="106" X2="125" Y2="28" Stroke="#D71920" StrokeThickness="2.3" RenderTransformOrigin="0.5,1"><Line.RenderTransform><RotateTransform x:Name="AnalogNeedleTransform" Angle="-62" CenterX="125" CenterY="106"/></Line.RenderTransform></Line>
+       <Ellipse Width="22" Height="22" Fill="#17191A" Stroke="#050505" StrokeThickness="2" Canvas.Left="114" Canvas.Top="95"/><Ellipse Width="8" Height="8" Fill="#777" Canvas.Left="121" Canvas.Top="102"/><TextBlock x:Name="AnalogMeterText" Text="S0" Foreground="#111" FontFamily="Consolas" FontWeight="Bold" FontSize="13" Canvas.Left="112" Canvas.Top="80"/>
+      </Canvas></Border></GroupBox><GroupBox Header="PC AUDIO / PC SQUELCH / RADIO RF GAIN" Margin="0,6,0,0"><StackPanel Margin="5"><Grid Height="48" Margin="0,0,0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="58"/><ColumnDefinition/></Grid.ColumnDefinitions><Canvas Width="52" Height="44" HorizontalAlignment="Center" VerticalAlignment="Center"><Path Data="M 5,17 L 16,17 L 28,7 L 28,37 L 16,27 L 5,27 Z" Fill="#D8D8D8" Stroke="#666" StrokeThickness="1.5"/><Path Data="M 33,15 C 40,20 40,24 33,29" Stroke="#FFD35A" StrokeThickness="2.5" Fill="Transparent"/><Path Data="M 37,10 C 49,18 49,27 37,35" Stroke="#FFD35A" StrokeThickness="2.5" Fill="Transparent"/></Canvas><StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="PC SPEAKER" Foreground="#E8E8E8" FontWeight="Bold" FontSize="14"/><TextBlock Text="WINDOWS VOLUME" Foreground="#FFD35A" FontWeight="Bold" FontSize="13"/></StackPanel></Grid><UniformGrid Columns="3"><Button Content="VOL −" Height="46" FontSize="16" FontWeight="Bold" Foreground="White" Background="#33383A" Click="VolumeDown_Click"/><Button x:Name="MuteButton" Content="MUTE" Height="46" FontSize="16" FontWeight="Bold" Foreground="#FFD35A" Background="#33383A" Click="Mute_Click"/><Button Content="VOL +" Height="46" FontSize="16" FontWeight="Bold" Foreground="White" Background="#33383A" Click="VolumeUp_Click"/></UniformGrid><Grid Margin="0,7,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="58"/><ColumnDefinition Width="58"/><ColumnDefinition Width="70"/></Grid.ColumnDefinitions><Button x:Name="SqlButton" Content="PC SQL OFF" Height="35" FontWeight="Bold" Click="SqlToggle_Click"/><Button Grid.Column="1" Content="SQL −" Margin="4,0,0,0" Click="SqlDown_Click"/><Button Grid.Column="2" Content="SQL +" Margin="4,0,0,0" Click="SqlUp_Click"/><TextBlock x:Name="SqlLevelText" Grid.Column="3" Text="S3" FontFamily="Consolas" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid><Grid Margin="0,7,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="64"/><ColumnDefinition Width="64"/><ColumnDefinition Width="76"/></Grid.ColumnDefinitions><TextBlock Text="RF GAIN" Foreground="#FFD35A" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/><Button Grid.Column="1" Content="RF −" Height="35" FontWeight="Bold" Margin="4,0,0,0" Click="RfGainInfo_Click" ToolTip="The FT-857D standard CAT protocol cannot set the physical RF Gain control."/><Button Grid.Column="2" Content="RF +" Height="35" FontWeight="Bold" Margin="4,0,0,0" Click="RfGainInfo_Click" ToolTip="The FT-857D standard CAT protocol cannot set the physical RF Gain control."/><TextBlock Grid.Column="3" Text="RADIO" Foreground="#FFD35A" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="Use the radio SQL/RF knob for true RF Gain."/></Grid></StackPanel></GroupBox></StackPanel>
+    <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="105"/><RowDefinition Height="*"/></Grid.RowDefinitions><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><GroupBox Header="VFO"><UniformGrid Columns="2"><Button x:Name="VfoButton" Content="A" Click="Vfo_Click"/><Button Content="B" Click="Vfo_Click"/></UniformGrid></GroupBox><GroupBox Grid.Column="1" Header="Split"><UniformGrid Columns="2"><Button Content="OFF" Click="Split_Click"/><Button x:Name="SplitButton" Content="ON" Click="Split_Click"/></UniformGrid></GroupBox><GroupBox Grid.Column="2" Header="RIT"><StackPanel><TextBlock x:Name="RitText" Text="OFF 0.00" HorizontalAlignment="Center" FontSize="15"/><UniformGrid Columns="3"><Button Content="−" Tag="-100" Click="RitStep_Click"/><Button Content="CLR" Click="RitClear_Click"/><Button Content="+" Tag="100" Click="RitStep_Click"/></UniformGrid></StackPanel></GroupBox></Grid>
+     <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="135"/></Grid.ColumnDefinitions><GroupBox Header="Status"><StackPanel><StackPanel Orientation="Horizontal"><Ellipse x:Name="LinkLamp" Width="11" Height="11" Fill="#5FB429"/><TextBlock x:Name="StatusText" Text="Disconnected" Margin="7,0"/></StackPanel><TextBlock Text="● FT-857D" Foreground="#999" Margin="0,4"/><TextBlock Text="● CAT interface" Foreground="#777"/></StackPanel></GroupBox><GroupBox Grid.Column="1" Header="COM Port"><StackPanel><ComboBox x:Name="PortBox" Height="31" ItemContainerStyle="{StaticResource ReadableComboItem}" IsEditable="True" IsTextSearchEnabled="False" Foreground="Black" Background="#F2F2F2" DropDownOpened="PortBox_DropDownOpened" ToolTip="Select a detected COM port, or type one manually (for example COM3)."/><CheckBox x:Name="DemoCheck" Content="Demo mode" Margin="5,4"/><Button x:Name="RefreshButton" Content="Refresh" Click="RefreshPorts_Click" Height="29"/></StackPanel></GroupBox><GroupBox Grid.Column="2" Header="Baud Rate"><StackPanel><ComboBox x:Name="BaudBox" Height="31" ItemContainerStyle="{StaticResource ReadableComboItem}" IsEditable="True" Text="9600" Foreground="Black" Background="#F2F2F2">
+ <ComboBoxItem Content="4800" Foreground="Black" Background="White"/>
+ <ComboBoxItem Content="9600" IsSelected="True" Foreground="Black" Background="White"/>
+ <ComboBoxItem Content="38400" Foreground="Black" Background="White"/>
+</ComboBox><Button x:Name="ConnectButton" Content="Connect" Click="Connect_Click" Height="36" Margin="3,9,3,3"/></StackPanel></GroupBox></Grid>
+    </Grid>
+   </Grid>
+   <GroupBox Grid.Row="2" Header="BAND SELECT — CLICK A BAND" Margin="0,2,0,4" Foreground="#FFD27A" FontWeight="Bold">
+    <UniformGrid Columns="13" Margin="5,3">
+      <Button Content="160m" Tag="1900000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="80m" Tag="3650000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="60m" Tag="5354000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="40m" Tag="7100000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="30m" Tag="10125000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="20m" Tag="14200000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="17m" Tag="18100000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="15m" Tag="21200000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="12m" Tag="24940000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="10m" Tag="28500000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="6m" Tag="50150000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="2m" Tag="145500000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+      <Button Content="70cm" Tag="433500000" Click="BandGrid_Click" Background="#F39A18" Foreground="Black" FontWeight="Bold" Margin="2"/>
+    </UniformGrid>
+   </GroupBox>
+   <Grid Grid.Row="3" Margin="0,2,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="410"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <GroupBox Header="Repeater / CTCSS"><Grid Margin="4"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+      <StackPanel Orientation="Horizontal"><TextBlock Text="CTCSS" Width="48" VerticalAlignment="Center"/><ComboBox x:Name="CtcssBox" Width="92" ItemContainerStyle="{StaticResource ReadableComboItem}" Height="28" Foreground="Black" Background="White"/><Button Content="Tone ON" Width="70" Margin="6,0" Click="CtcssOn_Click"/><Button Content="Tone OFF" Width="70" Click="CtcssOff_Click"/></StackPanel>
+      <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,0"><TextBlock Text="Shift" Width="48" VerticalAlignment="Center"/><Button Content="SIMPLEX" Tag="0" Width="70" Click="Shift_Click"/><Button Content="−" Tag="-1" Width="42" Margin="4,0" Click="Shift_Click"/><Button Content="+" Tag="1" Width="42" Click="Shift_Click"/><TextBox x:Name="ShiftAmountBox" Text="0.600" Width="65" Margin="8,0,3,0" Foreground="Black" Background="White" ToolTip="Shift amount in MHz"/><TextBlock Text="MHz" VerticalAlignment="Center"/><Button Content="APPLY" Width="58" Margin="6,0,0,0" Click="ApplyRepeater_Click"/></StackPanel>
+    </Grid></GroupBox>
+    <GroupBox Grid.Column="1" Header="PC + RADIO Memory Channels"><Grid Margin="4"><Grid.RowDefinitions><RowDefinition Height="31"/><RowDefinition Height="31"/><RowDefinition Height="*"/></Grid.RowDefinitions><Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/></Grid.ColumnDefinitions>
+      <ComboBox x:Name="MemoryChannelBox" SelectedIndex="0" ItemContainerStyle="{StaticResource MemoryComboItem}" Height="27" Foreground="#D00000" FontWeight="Bold" Background="White"/>
+      <TextBox x:Name="MemoryNameBox" Grid.Column="1" Height="27" Margin="6,0" Foreground="Black" Background="White" ToolTip="PC memory name, e.g. GB3WR"/>
+      <Button Grid.Column="2" Content="PC SAVE" Margin="2,0" Click="SaveMemory_Click"/><Button Grid.Column="3" Content="PC RECALL" Margin="2,0" Click="RecallMemory_Click"/>
+      <ComboBox x:Name="RadioMemoryBox" Grid.Row="1" SelectedIndex="0" ItemContainerStyle="{StaticResource MemoryComboItem}" Height="27" Foreground="#D00000" FontWeight="Bold" Background="White" IsEnabled="False" ToolTip="Direct FT-857D EEPROM memory access is disabled in this build"/>
+      <TextBlock Grid.Row="1" Grid.Column="1" Text="RADIO MEMORY NAMES ARE NOT EXPOSED BY STANDARD CAT" Foreground="#FF7070" FontWeight="Bold" VerticalAlignment="Center" Margin="6,0"/>
+      <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Content="CAT LIMIT" Margin="2,0" Click="ReadRadioMemory_Click" ToolTip="Standard FT-857D CAT does not expose stored memory tags."/>
+      <TextBlock x:Name="MemoryInfoText" Grid.Row="2" Grid.ColumnSpan="4" Margin="0,4,0,0" Foreground="#CCC" Text="PC memories can hold 200 named channels. Standard FT-857D CAT does not provide a documented command to read the radio's stored alpha tags." TextWrapping="Wrap"/>
+    </Grid></GroupBox>
+   </Grid>
+   <Grid Grid.Row="4"><TextBlock Text="Ready" VerticalAlignment="Center" Foreground="#AAA"/><TextBlock Text="HamTech M0FXB Yaesu FT857D Controller" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#B9B9B9" FontWeight="SemiBold"/></Grid>
+  </Grid></Border>
+  </Viewbox>
+ </DockPanel>
+  </Grid>
+  <Viewbox Stretch="Uniform">
+   <Canvas Width="1536" Height="1024" Background="#090A0B">
+    <Image Source="Assets/FT857D-real-panel.png" Width="1536" Height="1024" Stretch="Fill"/>
+    <!-- V7: real WPF menu placed exactly over the menu row in the photographic artwork. -->
+    <Menu Canvas.Left="0" Canvas.Top="43" Width="1536" Height="39" Background="#1B1E20" Foreground="#F2F2F2" FontSize="19" VerticalContentAlignment="Center">
+     <MenuItem Header="_File" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Exit" Click="MenuExit_Click"/></MenuItem>
+     <MenuItem Header="_CAT" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Connect / Disconnect" Click="Connect_Click"/><MenuItem Header="Read radio now" Click="Read_Click"/><Separator/><MenuItem Header="PTT ON" Click="MenuPttOn_Click"/><MenuItem Header="PTT OFF" Click="MenuPttOff_Click"/></MenuItem>
+     <MenuItem Header="_View" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Refresh COM ports" Click="RefreshPorts_Click"/><MenuItem Header="Fill PC screen" Click="FillScreen_Click"/><MenuItem Header="Full screen (F11)" Click="FullScreen_Click"/><MenuItem Header="Restore window" Click="RestoreWindow_Click"/></MenuItem>
+     <MenuItem Header="_Memory" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="PC Save selected memory" Click="SaveMemory_Click"/><MenuItem Header="PC Recall selected memory" Click="RecallMemory_Click"/><Separator/><MenuItem Header="Radio memory CAT limits" Click="ReadRadioMemory_Click"/></MenuItem>
+     <MenuItem Header="_Settings" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Tuning step"><MenuItem Header="10 Hz" Tag="10" Click="TuningStepMenu_Click"/><MenuItem Header="100 Hz" Tag="100" Click="TuningStepMenu_Click"/><MenuItem Header="1 kHz" Tag="1000" Click="TuningStepMenu_Click"/><MenuItem Header="5 kHz" Tag="5000" Click="TuningStepMenu_Click"/><MenuItem Header="10 kHz" Tag="10000" Click="TuningStepMenu_Click"/></MenuItem><Separator/><MenuItem Header="Instructions" Click="Instructions_Click"/></MenuItem>
+     <MenuItem Header="_Help" ItemContainerStyle="{StaticResource ReadableSubMenuItem}"><MenuItem Header="Instructions" Click="Instructions_Click"/><MenuItem Header="VFO knob help" Click="KnobHelp_Click"/><MenuItem Header="About" Click="About_Click"/></MenuItem>
+    </Menu>
+    <!-- Clean live LCD: mask the sample text baked into the artwork, then draw CAT values once. -->
+    <Border Canvas.Left="238" Canvas.Top="183" Width="595" Height="234" Background="#F79308" CornerRadius="8" IsHitTestVisible="False"/>
+    <TextBlock Text="{Binding Text, ElementName=VfoText}" Canvas.Left="265" Canvas.Top="199" Width="150" FontFamily="Consolas" FontSize="30" FontWeight="Bold" Foreground="#241100" IsHitTestVisible="False"/>
+    <TextBlock Text="{Binding Text, ElementName=ModeText}" Canvas.Left="405" Canvas.Top="199" Width="120" FontFamily="Consolas" FontSize="30" FontWeight="Bold" Foreground="#241100" IsHitTestVisible="False"/>
+    <TextBlock Text="13.8V" Canvas.Left="713" Canvas.Top="201" FontFamily="Consolas" FontSize="24" FontWeight="Bold" Foreground="#241100" IsHitTestVisible="False"/>
+    <TextBox x:Name="PhotoFrequencyBox" Canvas.Left="280" Canvas.Top="235" Width="520" Height="88"
+             Text="145.500.00" TextAlignment="Center" FontFamily="Consolas" FontSize="70" FontWeight="Bold"
+             Foreground="#241100" Background="Transparent" BorderThickness="0" Padding="0"
+             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+             Cursor="IBeam" KeyDown="PhotoFrequencyBox_KeyDown" MouseWheel="PhotoFrequencyBox_MouseWheel"
+             GotKeyboardFocus="PhotoFrequencyBox_GotKeyboardFocus" LostKeyboardFocus="PhotoFrequencyBox_LostKeyboardFocus"
+             ToolTip="Click to type a frequency; Enter sends it to the FT-857D. Mouse wheel tunes by the selected STEP."/>
+    <TextBlock Text="S1   3   5   7   9   +20  +40  +60dB" Canvas.Left="270" Canvas.Top="326" FontFamily="Consolas" FontSize="22" FontWeight="Bold" Foreground="#241100" IsHitTestVisible="False"/>
+    <!-- V13 gridded live LCD S-meter: weak signal green, strong signal red. -->
+    <Border Canvas.Left="275" Canvas.Top="357" Width="270" Height="20" Background="#263119" BorderBrush="#241100" BorderThickness="1" IsHitTestVisible="False"/>
+    <Canvas Canvas.Left="275" Canvas.Top="357" Width="270" Height="20" IsHitTestVisible="False">
+      <Border x:Name="LcdMeterSeg0" Canvas.Left="0" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg1" Canvas.Left="17" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg2" Canvas.Left="34" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg3" Canvas.Left="51" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg4" Canvas.Left="68" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg5" Canvas.Left="85" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg6" Canvas.Left="102" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg7" Canvas.Left="119" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg8" Canvas.Left="136" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg9" Canvas.Left="153" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg10" Canvas.Left="170" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg11" Canvas.Left="187" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg12" Canvas.Left="204" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg13" Canvas.Left="221" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg14" Canvas.Left="238" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+      <Border x:Name="LcdMeterSeg15" Canvas.Left="255" Width="15" Height="20" Background="#255A2E" BorderBrush="#173A1D" BorderThickness="1"/>
+    </Canvas>
+    <Border x:Name="PhotoLcdSignalBar" Canvas.Left="275" Canvas.Top="357" Width="0" Height="0" Background="Transparent" IsHitTestVisible="False"/>
+    <TextBlock Text="IPO          ATT          NB          AGC" Canvas.Left="275" Canvas.Top="385" FontFamily="Consolas" FontSize="22" FontWeight="Bold" Foreground="#241100" IsHitTestVisible="False"/>
+
+    <!-- Rotating photographic VFO dial overlay. CAT tuning remains handled by the transparent hotspot below. -->
+    <Image Source="Assets/FT857D-dial.png" Canvas.Left="960" Canvas.Top="140" Width="420" Height="420" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+     <Image.RenderTransform><RotateTransform x:Name="PhotoDialTransform" Angle="0"/></Image.RenderTransform>
+    </Image>
+    <!-- High-contrast index mark makes dial rotation visibly obvious even though the knob texture is nearly rotationally symmetric. -->
+    <Grid Canvas.Left="960" Canvas.Top="140" Width="420" Height="420" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+      <Grid.RenderTransform><RotateTransform x:Name="PhotoDialMarkerTransform" Angle="0"/></Grid.RenderTransform>
+      <Border Width="8" Height="42" CornerRadius="3" Background="#F4A126" BorderBrush="#FFE2A1" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0"/>
+    </Grid>
+
+    <!-- Keep CAT controls clean: mask sample connection text from artwork. -->
+    <Border Canvas.Left="935" Canvas.Top="850" Width="155" Height="78" Background="#111314" IsHitTestVisible="False"/>
+    <Ellipse Canvas.Left="938" Canvas.Top="891" Width="20" Height="20" Fill="#75F000" IsHitTestVisible="False"/>
+    <TextBlock x:Name="PhotoConnectionText" Text="Disconnected" Canvas.Left="965" Canvas.Top="887" Width="125" FontSize="18" Foreground="White" IsHitTestVisible="False"/>
+
+    <!-- Main radio hotspots -->
+    <Button Canvas.Left="865" Canvas.Top="158" Width="86" Height="70" Opacity="0.02" Click="Mode_Click" Content="MODE"/>
+    <Button Canvas.Left="865" Canvas.Top="244" Width="86" Height="70" Opacity="0.02" Click="Band_Click" Tag="1" Content="BAND"/>
+    <Button Canvas.Left="865" Canvas.Top="330" Width="86" Height="70" Opacity="0.02" Click="Tune_Click" Tag="-1000" Content="DWN"/>
+    <Button Canvas.Left="865" Canvas.Top="407" Width="86" Height="70" Opacity="0.02" Click="Tune_Click" Tag="1000" Content="UP"/>
+    <Button Canvas.Left="1395" Canvas.Top="159" Width="95" Height="72" Opacity="0.02" Click="Func_Click" Content="F"/>
+    <Button Canvas.Left="1395" Canvas.Top="248" Width="95" Height="72" Opacity="0.02" Click="UnsupportedCat_Click" Tag="V/M" Content="V/M"/>
+    <Button Canvas.Left="1395" Canvas.Top="337" Width="95" Height="72" Opacity="0.02" Click="Vfo_Click" Content="A/B"/>
+    <Button Canvas.Left="1395" Canvas.Top="428" Width="95" Height="72" Opacity="0.02" Click="UnsupportedCat_Click" Tag="A=B" Content="A=B"/>
+    <!-- Large tuning dial -->
+    <Ellipse x:Name="PhotoVfoDial" Canvas.Left="974" Canvas.Top="153" Width="390" Height="390" Fill="#01000000" Cursor="Hand" MouseLeftButtonDown="Dial_MouseLeftButtonDown" MouseLeftButtonUp="Dial_MouseLeftButtonUp" MouseMove="Dial_MouseMove" LostMouseCapture="Dial_LostMouseCapture" MouseWheel="Dial_MouseWheel"/>
+
+    <!-- Mode row: transparent CAT hotspots plus live illumination driven by CAT readback. -->
+    <Button Canvas.Left="48" Canvas.Top="576" Width="114" Height="43" Opacity="0.02" Click="Mode_Click" Tag="LSB" Content="LSB"/>
+    <Button Canvas.Left="48" Canvas.Top="628" Width="114" Height="43" Opacity="0.02" Click="Mode_Click" Tag="USB" Content="USB"/>
+    <Button Canvas.Left="48" Canvas.Top="681" Width="114" Height="43" Opacity="0.02" Click="Mode_Click" Tag="AM" Content="AM"/>
+    <Button Canvas.Left="48" Canvas.Top="734" Width="114" Height="43" Opacity="0.02" Click="Mode_Click" Tag="FM" Content="FM"/>
+    <Button Canvas.Left="48" Canvas.Top="787" Width="114" Height="40" Opacity="0.02" Click="Mode_Click" Tag="DIG" Content="DIG"/>
+    <Border x:Name="PhotoModeLsb" Canvas.Left="49" Canvas.Top="577" Width="112" Height="41" CornerRadius="7" BorderThickness="3" BorderBrush="#FFFFA000" Background="#66FF7600" IsHitTestVisible="False" Visibility="Collapsed"/>
+    <Border x:Name="PhotoModeUsb" Canvas.Left="49" Canvas.Top="629" Width="112" Height="41" CornerRadius="7" BorderThickness="3" BorderBrush="#FFFFA000" Background="#66FF7600" IsHitTestVisible="False" Visibility="Collapsed"/>
+    <Border x:Name="PhotoModeAm" Canvas.Left="49" Canvas.Top="682" Width="112" Height="41" CornerRadius="7" BorderThickness="3" BorderBrush="#FFFFA000" Background="#66FF7600" IsHitTestVisible="False" Visibility="Collapsed"/>
+    <Border x:Name="PhotoModeFm" Canvas.Left="49" Canvas.Top="735" Width="112" Height="41" CornerRadius="7" BorderThickness="3" BorderBrush="#FFFFA000" Background="#66FF7600" IsHitTestVisible="False" Visibility="Collapsed"/>
+    <Border x:Name="PhotoModeDig" Canvas.Left="49" Canvas.Top="788" Width="112" Height="38" CornerRadius="7" BorderThickness="3" BorderBrush="#FFFFA000" Background="#66FF7600" IsHitTestVisible="False" Visibility="Collapsed"/>
+
+    <!-- Correct FT-857D band bank: cover the generated artwork labels and draw a clean live band selector. -->
+    <Border Canvas.Left="198" Canvas.Top="548" Width="265" Height="292" Background="#111314" BorderBrush="#565656" BorderThickness="2" CornerRadius="5" IsHitTestVisible="False"/>
+    <TextBlock Text="BAND" Canvas.Left="294" Canvas.Top="552" FontSize="23" FontWeight="Bold" Foreground="#E6E6E6" IsHitTestVisible="False"/>
+    <UniformGrid Canvas.Left="210" Canvas.Top="586" Width="238" Height="238" Rows="7" Columns="2" IsHitTestVisible="False">
+      <TextBlock Text="●  160 m" FontSize="18" Foreground="#D9D9D9"/><TextBlock Text="●  15 m" FontSize="18" Foreground="#D9D9D9"/>
+      <TextBlock Text="●  80 m" FontSize="18" Foreground="#D9D9D9"/><TextBlock Text="●  12 m" FontSize="18" Foreground="#D9D9D9"/>
+      <TextBlock Text="●  60 m" FontSize="18" Foreground="#D9D9D9"/><TextBlock Text="●  10 m" FontSize="18" Foreground="#D9D9D9"/>
+      <TextBlock Text="●  40 m" FontSize="18" Foreground="#FF9D16"/><TextBlock Text="●  6 m" FontSize="18" Foreground="#D9D9D9"/>
+      <TextBlock Text="●  30 m" FontSize="18" Foreground="#D9D9D9"/><TextBlock Text="●  2 m" FontSize="18" Foreground="#D9D9D9"/>
+      <TextBlock Text="●  20 m" FontSize="18" Foreground="#D9D9D9"/><TextBlock Text="●  70 cm" FontSize="18" Foreground="#D9D9D9"/>
+      <TextBlock Text="●  17 m" FontSize="18" Foreground="#D9D9D9"/><TextBlock Text=""/>
+    </UniformGrid>
+    <!-- Transparent CAT hotspots exactly over the corrected labels. -->
+    <Button Canvas.Left="208" Canvas.Top="586" Width="122" Height="35" Opacity="0.02" Tag="1900000" Click="BandGrid_Click" Content="160m"/>
+    <Button Canvas.Left="330" Canvas.Top="586" Width="122" Height="35" Opacity="0.02" Tag="21200000" Click="BandGrid_Click" Content="15m"/>
+    <Button Canvas.Left="208" Canvas.Top="620" Width="122" Height="35" Opacity="0.02" Tag="3650000" Click="BandGrid_Click" Content="80m"/>
+    <Button Canvas.Left="330" Canvas.Top="620" Width="122" Height="35" Opacity="0.02" Tag="24940000" Click="BandGrid_Click" Content="12m"/>
+    <Button Canvas.Left="208" Canvas.Top="654" Width="122" Height="35" Opacity="0.02" Tag="5354000" Click="BandGrid_Click" Content="60m"/>
+    <Button Canvas.Left="330" Canvas.Top="654" Width="122" Height="35" Opacity="0.02" Tag="28500000" Click="BandGrid_Click" Content="10m"/>
+    <Button Canvas.Left="208" Canvas.Top="688" Width="122" Height="35" Opacity="0.02" Tag="7100000" Click="BandGrid_Click" Content="40m"/>
+    <Button Canvas.Left="330" Canvas.Top="688" Width="122" Height="35" Opacity="0.02" Tag="50150000" Click="BandGrid_Click" Content="6m"/>
+    <Button Canvas.Left="208" Canvas.Top="722" Width="122" Height="35" Opacity="0.02" Tag="10125000" Click="BandGrid_Click" Content="30m"/>
+    <Button Canvas.Left="330" Canvas.Top="722" Width="122" Height="35" Opacity="0.02" Tag="145500000" Click="BandGrid_Click" Content="2m"/>
+    <Button Canvas.Left="208" Canvas.Top="756" Width="122" Height="35" Opacity="0.02" Tag="14200000" Click="BandGrid_Click" Content="20m"/>
+    <Button Canvas.Left="330" Canvas.Top="756" Width="122" Height="35" Opacity="0.02" Tag="433500000" Click="BandGrid_Click" Content="70cm"/>
+    <Button Canvas.Left="208" Canvas.Top="790" Width="122" Height="35" Opacity="0.02" Tag="18100000" Click="BandGrid_Click" Content="17m"/>
+
+    <!-- V10: replace the old FILTERS/DSP button bank with a genuine Windows audio-input scope. -->
+    <Border Canvas.Left="490" Canvas.Top="548" Width="320" Height="275" Background="#070B0D" BorderBrush="#53656D" BorderThickness="2" CornerRadius="8">
+      <Grid Margin="10">
+        <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="*"/><RowDefinition Height="34"/></Grid.RowDefinitions>
+        <TextBlock Text="LIVE AUDIO SCOPE" Foreground="#55FF8A" FontFamily="Consolas" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <Canvas x:Name="PhotoAudioScopeCanvas" Grid.Row="1" Background="#020806" SizeChanged="AudioScopeCanvas_SizeChanged">
+          <Line x:Name="PhotoScopeMidLine" Stroke="#194D2C" StrokeThickness="1" StrokeDashArray="4,4"/>
+          <Polyline x:Name="PhotoAudioScopeTrace" Stroke="#55FF8A" StrokeThickness="2.5" StrokeLineJoin="Round"/>
+        </Canvas>
+        <Grid Grid.Row="2">
+          <TextBlock Text="WINDOWS AUDIO INPUT" Foreground="#75D99A" FontFamily="Consolas" FontSize="11" VerticalAlignment="Center"/>
+          <Button Content="RESTART" Width="78" Height="27" HorizontalAlignment="Right" Background="#14231A" Foreground="#55FF8A" BorderBrush="#55FF8A" Click="RestartAudioScope_Click"/>
+        </Grid>
+      </Grid>
+    </Border>
+    <!-- VFO / memory -->
+    <Button Canvas.Left="865" Canvas.Top="574" Width="130" Height="50" Opacity="0.02" Click="Vfo_Click" Content="A"/>
+    <Button Canvas.Left="865" Canvas.Top="628" Width="130" Height="50" Opacity="0.02" Click="Vfo_Click" Content="B"/>
+    <Button Canvas.Left="865" Canvas.Top="680" Width="130" Height="50" Opacity="0.02" Click="UnsupportedCat_Click" Tag="V/M" Content="V/M"/>
+
+    <!-- RED CAT PTT: hold to transmit, release to return to receive. -->
+    <Button x:Name="PhotoPttButton" Canvas.Left="866" Canvas.Top="778" Width="128" Height="48" Content="PTT" Foreground="White" Background="#A90F16" BorderBrush="#E24A4F" BorderThickness="3" FontSize="22" FontWeight="Bold" PreviewMouseLeftButtonDown="Ptt_Down" PreviewMouseLeftButtonUp="Ptt_Up" LostMouseCapture="Ptt_LostCapture" ToolTip="Hold for TX; release for RX"/>
+
+    <!-- RIT / XIT / CLAR controls. FT-857D CAT exposes one clarifier offset; mouse-wheel RIT or CLAR to change it. -->
+    <Ellipse Canvas.Left="1080" Canvas.Top="590" Width="125" Height="125" Fill="#01000000" Cursor="Hand" MouseWheel="ClarifierKnob_MouseWheel" MouseLeftButtonDown="ClarifierToggle_Click" ToolTip="RIT/Clarifier: wheel changes offset; click toggles clarifier"/>
+    <Ellipse Canvas.Left="1080" Canvas.Top="715" Width="125" Height="125" Fill="#01000000" Cursor="Hand" MouseLeftButtonDown="XitInfo_Click" ToolTip="XIT is not separately exposed by documented FT-857D CAT"/>
+    <Ellipse Canvas.Left="1335" Canvas.Top="655" Width="155" Height="155" Fill="#01000000" Cursor="Hand" MouseWheel="ClarifierKnob_MouseWheel" MouseLeftButtonDown="ClarifierToggle_Click" ToolTip="CLAR: wheel changes offset; click toggles clarifier"/>
+    <TextBlock x:Name="PhotoClarText" Text="CLAR 0.00 kHz" Canvas.Left="1260" Canvas.Top="815" Width="230" TextAlignment="Center" Foreground="#FFB13B" FontSize="18" FontWeight="Bold" IsHitTestVisible="False"/>
+
+    <!-- V10 live photo meters. Both needles are driven from the same selected CAT meter source. -->
+    <Canvas Canvas.Left="70" Canvas.Top="855" Width="690" Height="105" IsHitTestVisible="False">
+      <Line X1="190" Y1="87" X2="190" Y2="25" Stroke="#FF3B30" StrokeThickness="4" RenderTransformOrigin="0.5,1">
+        <Line.RenderTransform><RotateTransform x:Name="PhotoMeterNeedle1" Angle="-58" CenterX="190" CenterY="87"/></Line.RenderTransform>
+      </Line>
+      <Line X1="565" Y1="87" X2="565" Y2="25" Stroke="#FFB13B" StrokeThickness="4" RenderTransformOrigin="0.5,1">
+        <Line.RenderTransform><RotateTransform x:Name="PhotoMeterNeedle2" Angle="-58" CenterX="565" CenterY="87"/></Line.RenderTransform>
+      </Line>
+    </Canvas>
+    <TextBlock x:Name="PhotoSignalMeterText" Text="SIGNAL S0" Canvas.Left="165" Canvas.Top="925" Width="150" TextAlignment="Center" Foreground="White" FontSize="14" FontWeight="Bold" IsHitTestVisible="False"/>
+    <TextBlock x:Name="PhotoPowerMeterText" Text="SIGNAL S0" Canvas.Left="535" Canvas.Top="925" Width="150" TextAlignment="Center" Foreground="White" FontSize="14" FontWeight="Bold" IsHitTestVisible="False"/>
+    <Border x:Name="PhotoSignalBar" Canvas.Left="116" Canvas.Top="907" Width="0" Height="7" Background="#FF3B30" IsHitTestVisible="False"/>
+    <Border x:Name="PhotoPowerBar" Canvas.Left="493" Canvas.Top="907" Width="0" Height="7" Background="#FFB13B" IsHitTestVisible="False"/>
+    <Button x:Name="PhotoMeterButton" Canvas.Left="785" Canvas.Top="858" Width="128" Height="42" Content="METER: SIGNAL" Background="#126F31" Foreground="White" BorderBrush="#56D979" BorderThickness="2" FontWeight="Bold" FontSize="13" Click="MeterType_Click" ToolTip="Cycle SIGNAL / POWER / SWR / ALC"/>
+    <!-- CAT controls aligned to photo -->
+    <ComboBox x:Name="PhotoPortBox" Canvas.Left="1087" Canvas.Top="881" Width="110" Height="44" IsEditable="True" IsTextSearchEnabled="False" Foreground="Black" Background="White" DropDownOpened="PhotoPortBox_DropDownOpened"/>
+    <ComboBox x:Name="PhotoBaudBox" Canvas.Left="1210" Canvas.Top="881" Width="110" Height="44" IsEditable="True" Text="9600" Foreground="Black" Background="White"><ComboBoxItem Content="4800"/><ComboBoxItem Content="9600" IsSelected="True"/><ComboBoxItem Content="38400"/></ComboBox>
+    <Button x:Name="PhotoStepButton" Canvas.Left="785" Canvas.Top="908" Width="128" Height="38" Background="#25282A" Foreground="#FFB13B" BorderBrush="#6A6A6A" BorderThickness="2" FontWeight="Bold" FontSize="16" Click="Func_Click" Content="STEP 10 Hz" ToolTip="Cycle VFO tuning step"/>
+    <Button x:Name="PhotoConnectButton" Canvas.Left="1334" Canvas.Top="879" Width="145" Height="48" Opacity="1" Background="#25282A" Foreground="White" BorderBrush="#777" BorderThickness="2" FontWeight="Bold" FontSize="17" Click="Connect_Click" Content="CONNECT"/>
+   </Canvas>
+  </Viewbox>
+ </Grid>
+</Window>

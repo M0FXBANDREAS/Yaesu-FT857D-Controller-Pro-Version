@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>HamTech-M0FXB-FT857D-Controller</AssemblyName><RootNamespace>FT857DControl</RootNamespace>
+    <Product>HamTech M0FXB Yaesu FT857D Controller</Product><Authors>HamTech M0FXB</Authors>
+  </PropertyGroup>
+  <ItemGroup><PackageReference Include="System.IO.Ports" Version="8.0.0"/><PackageReference Include="NAudio" Version="2.2.1"/></ItemGroup>
+  <ItemGroup><Compile Remove="CatProtocolTests.cs" /></ItemGroup>
+  <ItemGroup><Resource Include="Assets\FT857D-real-panel.png" /></ItemGroup>
+</Project>

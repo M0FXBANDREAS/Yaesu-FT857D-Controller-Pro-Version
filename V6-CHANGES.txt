@@ -1,0 +1,13 @@
+HamTech M0FXB FT-857D Controller V6
+
+NEW
+- Visible File / CAT / View / Memory / Settings / Help top menus
+- CAT Connect/Disconnect and Read Radio commands in top CAT menu
+- RIT/CLAR mouse-wheel control (100 Hz steps) using documented FT-857D CAT clarifier commands
+- Click RIT/CLAR knob to toggle clarifier
+- Live RX S-meter along bottom
+- Live TX PO meter along bottom
+- HI-SWR indication from CAT TX status
+
+NOTE
+The FT-857D documented CAT command set does not provide an independent XIT command or an ALC meter value. V6 does not invent unsupported CAT bytes.

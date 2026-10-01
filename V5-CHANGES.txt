@@ -1,0 +1,12 @@
+HamTech M0FXB Yaesu FT-857D Controller PHOTO PANEL V5
+
+Changes from V4:
+- Corrected the photographic band-selector bank to: 160m, 80m, 60m, 40m, 30m, 20m, 17m, 15m, 12m, 10m, 6m, 2m, 70cm.
+- Corrected CAT hotspot frequencies, including 60m and 2m.
+- Added a large visible red press-and-hold CAT PTT button.
+- PTT release returns to RX; closing the app attempts PTT OFF before closing the CAT port.
+- Fixed photographic VFO drag geometry/capture so the photo dial itself is the drag target.
+- Added a high-contrast rotating dial index marker, because the round dial artwork is visually almost symmetric when rotated.
+- Existing working CAT, modes and BAND UP behavior retained.
+
+PTT CAT command follows Yaesu FT-857D manual: opcode 08 = PTT ON, 88 = PTT OFF.
